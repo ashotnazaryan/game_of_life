@@ -11,7 +11,7 @@ export class App extends Component {
         };
     }
 
-    initmatrix(count) {
+    initMatrix(count) {
         const matrix = [];
         for (let i = 0; i < count; i++) {
             matrix[i] = new Array(count);
@@ -61,7 +61,7 @@ export class App extends Component {
     }
 
     componentDidMount() {
-        this.initmatrix(10);
+        this.initMatrix(10);
     }
 
     toggleCell = (cell) => {
@@ -73,6 +73,10 @@ export class App extends Component {
 
     startGame = () => {
         this.setState({ started: true });
+    }
+
+    resetBoard = () => {
+        this.initMatrix(10);
     }
 
     render() {
@@ -101,7 +105,10 @@ export class App extends Component {
                         }
                         )}
                 </div>
-                <button onClick={() => this.startGame()}>Start game</button>
+                <div className="actions">
+                    <button onClick={() => this.startGame()}>Start game</button>
+                    <button onClick={() => this.resetBoard()}>Reset board</button>
+                </div>
             </div>
         )
     }
