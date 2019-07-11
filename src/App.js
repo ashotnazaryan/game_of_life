@@ -25,10 +25,6 @@ export class App extends Component {
                 matrix[i][j] = item;
             }
         }
-        matrix[1][1] = {
-            ...matrix[1][1],
-            alive: true
-        }
         this.setState({ matrix: matrix });
         setTimeout(() => {
             this.findAllNeighbours();
@@ -37,31 +33,31 @@ export class App extends Component {
 
     findAllNeighbours() {
         const { matrix } = this.state;
-        let allCells = [].concat(...matrix);
-        let neighbours = [];
-        matrix.map((rows, indexRow, selfMatrix) => {
-            const tempMatrix = JSON.parse(JSON.stringify(selfMatrix));
-            rows.map((cell, index, selfRows) => {
-                const tempColumns = tempMatrix[selfMatrix.length - 1 - indexRow];
-                const tempRows = JSON.parse(JSON.stringify(selfRows));
-                let neighbours_x = tempRows.filter((s, i, sf) => cell.x === i - 1 || cell.x === i + 1);
-                let neighbours_y = tempColumns.filter((s, i, sf) => cell.y === i - 1 || cell.y === i + 1);
-                debugger
-                // cell.neighbours = tempRows.filter((s, i) => cell.x === i - 1 || cell.x === i + 1);
-                // console.log(allCells, rows, indexRow, selfMatrix, cell, index, selfRows);
-                return cell;
-            });
-            return rows;
-        });
-        // let allCellCopy = JSON.parse(JSON.stringify(allCells));
-        // allCells.map((cell, index, self) => {
-        //     cell.neighbours = allCellCopy.filter((s, i) => (cell.x === i - 1 || cell.x === i + 1) && cell.x <= self.length - 1);
+        // matrix.forEach((rows) => {
+        //     rows.forEach((cell) => {
+        //         this.findNeighbours(cell, selfMatrix);
+        //     });
         // });
-        console.log("matrix: ", matrix);
+        for(let i = 0; i < matrix.length; i++) {
+            for(let j = 0; j < matrix[i].length; j++) {
+                this.findNeighbours(matrix[i][j], matrix);
+            }
+        }
     }
 
-    componentWillMount() {
-
+    findNeighbours(cell, matrix) {
+        let neighbours = [
+            (cell.y > 0 && cell.x > 0) && matrix[cell.y-1][cell.x-1], 
+            (cell.y > 0) && matrix[cell.y-1][cell.x], 
+            (cell.y > 0 && cell.x < matrix[cell.x].length - 1) && matrix[cell.y-1][cell.x+1],
+            (cell.x > 0) && matrix[cell.y][cell.x-1], 
+            (cell.x < matrix[cell.x].length - 1) && matrix[cell.y][cell.x+1],
+            (cell.x > 0 && cell.y < matrix[cell.x].length - 1) && matrix[cell.y+1][cell.x-1], 
+            (cell.y < matrix[cell.y].length - 1) && matrix[cell.y+1][cell.x], 
+            (cell.y < matrix[cell.y].length - 1) && matrix[cell.y+1][cell.x+1]
+        ];
+        neighbours = neighbours.filter(n => n);
+        cell.neighbours = neighbours;
     }
 
     componentDidMount() {
@@ -69,9 +65,10 @@ export class App extends Component {
     }
 
     toggleCell = (cell) => {
-        let { matrix } = this.state;
+        const { matrix } = this.state;
         cell.alive = !cell.alive;
         this.setState({ matrix: matrix });
+        console.log("matrix: ", matrix);
     }
 
     startGame = () => {
