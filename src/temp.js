@@ -10,6 +10,7 @@ export class App extends Component {
         this.state = {
             size: 10,
             matrix: [],
+            initialMatrix: [],
             aliveCells: [],
             processing: false
         };
@@ -29,7 +30,7 @@ export class App extends Component {
                 matrix[i][j] = item;
             }
         }
-        this.setState({ matrix: matrix });
+        this.setState({ matrix: matrix, initialMatrix: JSON.parse(JSON.stringify(matrix)) });
         setTimeout(() => {
             this.findAllNeighbours();
         });
@@ -138,10 +139,9 @@ export class App extends Component {
     }
 
     resetBoard = () => {
-        const { size } = this.state;
+        const { initialMatrix } = this.state;
         clearInterval(this._interval);
-        this.initMatrix(size);
-        this.setState({ processing: false });
+        this.setState({ processing: false, matrix: initialMatrix });
     }
 
     render() {

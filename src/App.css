@@ -31,9 +31,6 @@
     justify-content: space-between;
     padding: 10px 0;
 }
-/* .App .board-container .actions button {
-    margin: 20px;
-} */
-.App .board-container .actions input {
+.App .size-container input {
     width: 70px;
 }
