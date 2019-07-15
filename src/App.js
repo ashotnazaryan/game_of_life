@@ -8,7 +8,7 @@ export class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            size: 10,
+            size: 15,
             matrix: [],
             aliveCells: [],
             processing: false
@@ -32,6 +32,7 @@ export class App extends Component {
         this.setState({ matrix: matrix });
         setTimeout(() => {
             this.findAllNeighbours();
+            this.addClickListeners();
         });
     }
 
@@ -42,7 +43,7 @@ export class App extends Component {
                 this.findNeighbours(matrix[i][j], matrix);
             }
         }
-        // console.log("matrix: ", matrix);
+        console.log("matrix: ", matrix);
     }
 
     findNeighbours(cell, matrix) {
@@ -56,8 +57,11 @@ export class App extends Component {
             (cell.y < matrix[cell.y].length - 1) && matrix[cell.y + 1][cell.x],
             (cell.y < matrix[cell.y].length - 1) && matrix[cell.y + 1][cell.x + 1]
         ];
-        neighbours = neighbours.filter(n => n);
+        neighbours = neighbours.filter(n => n); /*.map(n => n = {...n})*/
         cell.neighbours = neighbours;
+    }
+
+    findAliveNeighbours(cell, matrix) {
         let aliveNeighbours = cell.neighbours.filter(n => n.alive);
         for (let i = 0; i < cell.neighbours.length; i++) {
             if (cell.alive && aliveNeighbours.length < 2) {
@@ -76,27 +80,8 @@ export class App extends Component {
         this.setState({ matrix: matrix });
     }
 
-    // findAliveNeighbours(cell, matrix) {
-    //     let aliveNeighbours = cell.neighbours.filter(n => n.alive);
-    //     for (let i = 0; i < cell.neighbours.length; i++) {
-    //         if (cell.alive && aliveNeighbours.length < 2) {
-    //             cell.alive = false;
-    //         }
-    //         else if (cell.alive && (aliveNeighbours.length === 2 || aliveNeighbours.length === 3)) {
-    //             cell.alive = true;
-    //         }
-    //         else if (cell.alive && aliveNeighbours.length > 3) {
-    //             cell.alive = false;
-    //         }
-    //         else if (!cell.alive && aliveNeighbours.length === 3) {
-    //             cell.alive = true;
-    //         }
-    //     }
-    //     this.setState({ matrix: matrix });
-    // }
-
     setSize = () => {
-        let { size } = this.state;
+        const { size } = this.state;
         if (size >= 3 && size <= 50) {
             this.setState({ size: size });
             this.initMatrix(size);
@@ -112,12 +97,24 @@ export class App extends Component {
         this.initMatrix(size);
     }
 
-    toggleCell = (cell) => {
-        let { matrix, aliveCells } = this.state;
-        cell.alive = !cell.alive;
-        cell.alive ? aliveCells.push(cell) : aliveCells.splice(aliveCells.indexOf(cell), 1);
-        this.setState({ matrix: matrix, aliveCells: aliveCells });
+    addClickListeners() {
+        const boardContainer = document.getElementsByClassName('board')[0];
+        const { matrix, aliveCells } = this.state;
+        const allCells = [].concat(...matrix);
+        boardContainer.addEventListener('click', (event) => {
+            let cell = allCells.find(c => c.coord === event.target.id) || {};
+            cell.alive = !cell.alive;
+            cell.alive ? aliveCells.push(cell) : aliveCells.splice(aliveCells.indexOf(cell), 1);
+            this.setState({ matrix: matrix, aliveCells: aliveCells });
+        });
     }
+
+    // toggleCell = (cell) => {
+    //     let { matrix, aliveCells } = this.state;
+    //     cell.alive = !cell.alive;
+    //     cell.alive ? aliveCells.push(cell) : aliveCells.splice(aliveCells.indexOf(cell), 1);
+    //     this.setState({ matrix: matrix, aliveCells: aliveCells });
+    // }
 
     startGame = () => {
         this._interval = setInterval(() => {
@@ -125,11 +122,13 @@ export class App extends Component {
             this.setState({ processing: true });
             for (let i = 0; i < matrix.length; i++) {
                 for (let j = 0; j < matrix[i].length; j++) {
-                    this.findNeighbours(matrix[i][j], matrix);
-                    this.setState({ matrix: matrix });
+                    this.findAliveNeighbours(matrix[i][j], matrix);
                 }
             }
-        }, 1000);
+            // for (let i = 0; i < aliveCells.length; i++) {
+            //     this.findAliveNeighbours(aliveCells[i], matrix);
+            // }
+        }, 500);
     }
 
     stopGame = () => {
@@ -161,11 +160,10 @@ export class App extends Component {
                                         {
                                             rows.map((cell) => {
                                                 return (
-                                                    <div key={cell.coord}
+                                                    <div key={cell.coord} id={cell.coord}
                                                         className={`cell ${cell.alive ? 'alive' : ''}`}
-                                                        onClick={() => this.toggleCell(cell)}
+                                                    // onClick={() => this.toggleCell(cell)}
                                                     >
-
                                                     </div>
                                                 )
                                             })
